@@ -9,9 +9,9 @@ type DataType = {
 };
 
 function TableRow(data: DataType) {
-  let fixedDataColor = "text-gray-500 dark:text-gray-400";
+  let errorBackgroundColor = "";
   if (data.data !== data.fixedData.toString()) {
-    fixedDataColor = "text-red-500 dark:text-red-400";
+    errorBackgroundColor = "bg-red-500";
   }
 
   return (
@@ -19,7 +19,7 @@ function TableRow(data: DataType) {
       <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
         {data.data}
       </td>
-      <td className={`${fixedDataColor} py-4 px-6 text-sm whitespace-nowrap`}>
+      <td className={`${errorBackgroundColor} py-4 px-6 text-sm whitespace-nowrap`}>
         {data.fixedData}
       </td>
     </tr>
