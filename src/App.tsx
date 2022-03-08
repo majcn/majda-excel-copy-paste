@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import classnames from "classnames";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -9,17 +11,19 @@ type DataType = {
 };
 
 function TableRow(data: DataType) {
-  let errorBackgroundColor = "";
-  if (data.data !== data.fixedData.toString()) {
-    errorBackgroundColor = "bg-red-500";
-  }
-
   return (
     <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
       <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
         {data.data}
       </td>
-      <td className={`${errorBackgroundColor} py-4 px-6 text-sm whitespace-nowrap`}>
+      <td
+        className={classnames(
+          data.data !== data.fixedData.toString()
+            ? "text-white bg-red-500"
+            : "text-gray-500 dark:text-gray-400",
+          "py-4 px-6 text-sm whitespace-nowrap"
+        )}
+      >
         {data.fixedData}
       </td>
     </tr>
