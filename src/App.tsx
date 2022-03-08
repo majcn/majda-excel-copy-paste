@@ -1,120 +1,74 @@
-import type { Column } from "react-table";
-
 import { useState } from "react";
-import { useTable } from "react-table";
-import styled from "styled-components";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-const Styles = styled.div`
-  padding: 1rem;
-  table {
-    border-spacing: 0;
-    border: 1px solid black;
-    th,
-    td {
-      margin: 0;
-      padding: 0.5rem;
-      border-bottom: 1px solid black;
-      border-right: 1px solid black;
-      :last-child {
-        border-right: 0;
-      }
-    }
-
-    tfoot {
-      text-align: center;
-      tr:first-child {
-        td {
-          border-top: 2px solid black;
-        }
-      }
-      font-weight: bolder;
-    }
-  }
-`;
 
 type DataType = {
   data: string;
   fixedData: number;
 };
 
-type TableProps = {
-  columns: Column<DataType>[];
-  data: DataType[];
-  onCopyClick: () => void;
-  onPasteClick: () => void;
-};
-
-function Table({ columns, data, onCopyClick, onPasteClick }: TableProps) {
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    footerGroups,
-    rows,
-    prepareRow,
-  } = useTable({
-    columns,
-    data,
-  });
+function TableRow(data: DataType) {
+  let fixedDataColor = "text-gray-500 dark:text-gray-400";
+  if (data.data !== data.fixedData.toString()) {
+    fixedDataColor = "text-red-500 dark:text-red-400";
+  }
 
   return (
-    <table {...getTableProps()}>
-      <thead>
-        <tr role="row">
-          <th colSpan={1} role="columnheader">
-            <button onClick={onPasteClick}>Prilepi</button>
-          </th>
-          <th colSpan={1} role="columnheader">
-            <button onClick={onCopyClick}>Kopiraj</button>
-          </th>
-        </tr>
-        {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps()}>{column.render("Header")}</th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map((row, i) => {
-          prepareRow(row);
-          return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map((cell) => {
-                return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
-              })}
-            </tr>
-          );
-        })}
-      </tbody>
-      <tfoot>
-        <tr role="row">
-          <td colSpan={1}>
-            <button onClick={onPasteClick}>Prilepi</button>
-          </td>
-          <td colSpan={1}>
-            <button onClick={onCopyClick}>Kopiraj</button>
-          </td>
-        </tr>
-      </tfoot>
-    </table>
+    <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+      <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
+        {data.data}
+      </td>
+      <td className={`${fixedDataColor} py-4 px-6 text-sm whitespace-nowrap`}>
+        {data.fixedData}
+      </td>
+    </tr>
   );
 }
 
-const columns: Column<DataType>[] = [
-  {
-    Header: "Stari",
-    accessor: "data",
-  },
-  {
-    Header: "Pretvorjeni",
-    accessor: "fixedData",
-  },
-];
+function Table({ data }: { data: DataType[] }) {
+  return (
+    <div className="w-1/3 mx-auto flex flex-col">
+      <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div className="inline-block py-2 min-w-full sm:px-6 lg:px-8">
+          <div className="overflow-hidden shadow-md sm:rounded-lg">
+            <table className="min-w-full">
+              <thead className="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th
+                    scope="col"
+                    className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400"
+                  >
+                    Podatki
+                  </th>
+                  <th
+                    scope="col"
+                    className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400"
+                  >
+                    Popravljeni podatki
+                  </th>
+                </tr>
+              </thead>
+              <tbody>{data.map((el) => TableRow(el))}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Button({ text, onClick }: { text: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-[100px] text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+    >
+      {text}
+    </button>
+  );
+}
 
 function App() {
   const [data, setData] = useState<DataType[]>([]);
@@ -154,14 +108,13 @@ function App() {
   return (
     <>
       <ToastContainer />
-      <Styles>
-        <Table
-          onCopyClick={onCopyClick}
-          onPasteClick={onPasteClick}
-          columns={columns}
-          data={data}
-        />
-      </Styles>
+      <Table data={data} />
+
+      <div className="fixed top-5 ml-5">
+        <Button text="Uvoz" onClick={onPasteClick} />
+        <br></br>
+        <Button text="Izvoz" onClick={onCopyClick} />
+      </div>
     </>
   );
 }
