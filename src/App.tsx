@@ -106,7 +106,7 @@ function App() {
   };
 
   return (
-    <>
+    <div className="dark">
       <ToastContainer />
       <Table data={data} />
 
@@ -115,7 +115,7 @@ function App() {
         <br></br>
         <Button text="Izvoz" onClick={onCopyClick} />
       </div>
-    </>
+    </div>
   );
 }
 
