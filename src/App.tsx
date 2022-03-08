@@ -129,7 +129,7 @@ function App() {
     []
   );
 
-  const [data, setData] = useState([] as DataType[]);
+  const [data, setData] = useState<DataType[]>([]);
 
   const notify = () => toast.success("Skopirano!");
 
