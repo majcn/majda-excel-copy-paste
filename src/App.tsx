@@ -1,17 +1,11 @@
 import type { Column } from "react-table";
 
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import { useState } from "react";
 import { useTable } from "react-table";
+import styled from "styled-components";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-const FixedButton = styled.button`
-  position: fixed;
-  bottom: 0px;
-  right: 0px;
-`;
 
 const Styles = styled.div`
   padding: 1rem;
@@ -54,7 +48,6 @@ type TableProps = {
 };
 
 function Table({ columns, data, onCopyClick, onPasteClick }: TableProps) {
-  // Use the state and functions returned from useTable to build your UI
   const {
     getTableProps,
     getTableBodyProps,
@@ -67,7 +60,6 @@ function Table({ columns, data, onCopyClick, onPasteClick }: TableProps) {
     data,
   });
 
-  // Render the UI for your table
   return (
     <table {...getTableProps()}>
       <thead>
@@ -113,29 +105,25 @@ function Table({ columns, data, onCopyClick, onPasteClick }: TableProps) {
   );
 }
 
+const columns: Column<DataType>[] = [
+  {
+    Header: "Stari",
+    accessor: "data",
+  },
+  {
+    Header: "Pretvorjeni",
+    accessor: "fixedData",
+  },
+];
+
 function App() {
-  const columns = React.useMemo(
-    () =>
-      [
-        {
-          Header: "Stari",
-          accessor: "data",
-        },
-        {
-          Header: "Pretvorjeni",
-          accessor: "fixedData",
-        },
-      ] as Column<DataType>[],
-    []
-  );
-
   const [data, setData] = useState<DataType[]>([]);
-
-  const notify = () => toast.success("Skopirano!");
 
   const onCopyClick = () => {
     const textToPaste = data.map((x) => x.fixedData).join("\n");
-    navigator.clipboard.writeText(textToPaste).then(notify);
+    navigator.clipboard
+      .writeText(textToPaste)
+      .then(() => toast.success("Skopirano!"));
   };
 
   const onPasteClick = async () => {
