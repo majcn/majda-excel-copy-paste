@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import classnames from "classnames";
 
@@ -7,10 +7,15 @@ import "react-toastify/dist/ReactToastify.css";
 
 type DataType = {
   data: string;
-  fixedData: number;
+  fixedData: string;
 };
 
-function TableRow(data: DataType) {
+type TableProps = {
+  data: DataType[];
+  headers: string[];
+};
+
+function TableRow({ data }: { data: DataType }) {
   return (
     <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
       <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -30,7 +35,18 @@ function TableRow(data: DataType) {
   );
 }
 
-function Table({ data }: { data: DataType[] }) {
+function TableHeader({ title }: { title: string }) {
+  return (
+    <th
+      scope="col"
+      className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400"
+    >
+      {title}
+    </th>
+  );
+}
+
+function Table({ data, headers }: TableProps) {
   return (
     <div className="w-1/3 mx-auto flex flex-col">
       <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -39,21 +55,16 @@ function Table({ data }: { data: DataType[] }) {
             <table className="min-w-full">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th
-                    scope="col"
-                    className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400"
-                  >
-                    Podatki
-                  </th>
-                  <th
-                    scope="col"
-                    className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400"
-                  >
-                    Popravljeni podatki
-                  </th>
+                  {headers.map((el, i) => (
+                    <TableHeader key={i} title={el} />
+                  ))}
                 </tr>
               </thead>
-              <tbody>{data.map((el) => TableRow(el))}</tbody>
+              <tbody>
+                {data.map((el, i) => (
+                  <TableRow key={i} data={el} />
+                ))}
+              </tbody>
             </table>
           </div>
         </div>
@@ -81,38 +92,37 @@ function App() {
     const textToPaste = data.map((x) => x.fixedData).join("\n");
     navigator.clipboard
       .writeText(textToPaste)
-      .then(() => toast.success("Skopirano!"));
+      .then(() => toast.success("Skopirano"));
   };
 
   const onPasteClick = async () => {
     const text = await navigator.clipboard.readText();
 
-    const textAsArray = text.split(/\r?\n/);
-
-    const fixedData = [];
-    let prev = -1;
-    for (let line of textAsArray) {
-      if (line === "null" || line === "NULL") {
-        fixedData.push(prev);
-      } else {
-        const lineAsNumber = Number(line);
-        fixedData.push(lineAsNumber);
-        prev = lineAsNumber;
-      }
-    }
-
     const result = [] as DataType[];
-    for (let i = 0; i < textAsArray.length; i++) {
-      result.push({ data: textAsArray[i], fixedData: fixedData[i] });
+    let prev = "";
+    for (let line of text.split(/\r?\n/)) {
+      if (line === "null" || line === "NULL") {
+        result.push({ data: line, fixedData: prev });
+      } else {
+        result.push({ data: line, fixedData: line });
+        prev = line;
+      }
     }
 
     setData(result);
   };
 
+  useEffect(() => {
+    if (data.length > 0) {
+      window.scrollTo(0, 0);
+      toast.success("Novi podatki");
+    }
+  }, [data]);
+
   return (
     <div className="dark">
       <ToastContainer />
-      <Table data={data} />
+      <Table data={data} headers={["Podatki", "Popravljeni podatki"]} />
 
       <div className="fixed top-5 ml-5">
         <Button text="Uvoz" onClick={onPasteClick} />
